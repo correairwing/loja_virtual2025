@@ -2,6 +2,7 @@ package com.icorrea.webstore.model;
 
 import java.io.Serializable;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,6 +20,7 @@ public class CategoriaProduto implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_categoria_produto")
     private Long id;
 
+    @Column(nullable = false, name = "nome_desc")
     private String nomeDesc;
 
     public Long getId() {

@@ -4,8 +4,10 @@ import java.io.Serializable;
 
 import com.icorrea.webstore.enums.TipoEndereco;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
@@ -26,21 +28,28 @@ public class Endereco implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_endereco")
     private Long id;
 
+    @Column(nullable = false)
     private String ruaLogradouro;
 
+    @Column(nullable = false)
     private String cep;
 
+    @Column(nullable = false)
     private String numero;
 
     private String complemento;
 
+    @Column(nullable = false)
     private String bairro;
 
+    @Column(nullable = false)
     private String uf;
 
+    @Column(nullable = false)
     private String cidade;
 
-    @Enumerated
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private TipoEndereco tipoEndereco;
 
     @ManyToOne(targetEntity = Pessoa.class)
