@@ -2,12 +2,10 @@ package com.icorrea.webstore.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "pessoa_juridica")
-@PrimaryKeyJoinColumn(name = "id")
 public abstract class PessoaJuridica extends Pessoa{
     private static final long serialVersionUID = 1L;
 
