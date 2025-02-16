@@ -38,16 +38,6 @@ public abstract class Pessoa implements Serializable{
     @OneToMany(mappedBy = "pessoa", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Endereco> enderecos = new ArrayList<Endereco>();
 
-    private String tipoPessoa;
-
-    public void setTipoPessoa(String tipoPessoa) {
-        this.tipoPessoa = tipoPessoa;
-    }
-
-    public String getTipoPessoa() {
-        return tipoPessoa;
-    }
-
     public List<Endereco> getEnderecos() {
         return enderecos;
     }
