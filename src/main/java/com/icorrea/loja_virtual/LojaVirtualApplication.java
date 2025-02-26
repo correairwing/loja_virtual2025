@@ -14,12 +14,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class LojaVirtualApplication {
     public static void main(String[] args) {
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String senha = "123";
-        String hash = encoder.encode(senha);
-
-        System.out.println("Senha criptografada: " + hash);
-
         SpringApplication.run(LojaVirtualApplication.class, args);
     }
 

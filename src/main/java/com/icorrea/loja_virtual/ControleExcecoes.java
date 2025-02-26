@@ -3,60 +3,61 @@ package com.icorrea.loja_virtual;
 import com.icorrea.loja_virtual.dto.ObjetoErroDTO;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.sql.SQLException;
 import java.util.List;
 
 @RestControllerAdvice
-@ControllerAdvice
-public class ControleExcecoes extends ResponseEntityExceptionHandler {
+public class ControleExcecoes {
 
-    @ExceptionHandler({MethodArgumentNotValidException.class, MethodArgumentTypeMismatchException.class, MethodArgumentNotValidException.class, Exception.class, Throwable.class, RuntimeException.class})
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    @ExceptionHandler({ExceptionLojaVirtual.class})
+    public ResponseEntity<Object> handleExeptionCustom (ExceptionLojaVirtual ex) {
+        ObjetoErroDTO erro = new ObjetoErroDTO();
+        erro.setError(ex.getMessage());
+        erro.setCode(HttpStatus.OK.toString());
 
+        return new ResponseEntity<Object>(erro, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ObjetoErroDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
         ObjetoErroDTO obj = new ObjetoErroDTO();
+        StringBuilder msg = new StringBuilder();
 
-        String msg = "";
-
-        if (ex instanceof MethodArgumentNotValidException) {
-            List<ObjectError> list = ((MethodArgumentNotValidException) ex).getBindingResult().getAllErrors();
-            for (ObjectError objectError : list) {
-                msg += objectError.getDefaultMessage() + "\n";
-            }
-        } else {
-            msg = ex.getMessage();
+        List<ObjectError> list = ex.getBindingResult().getAllErrors();
+        for (ObjectError objectError : list) {
+            msg.append(objectError.getDefaultMessage()).append("\n");
         }
-        obj.setError(msg);
-        obj.setCode(status.value() + " " + status.getReasonPhrase());
 
-        return new ResponseEntity<Object>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
+        obj.setError(msg.toString());
+        obj.setCode(HttpStatus.BAD_REQUEST.toString());
+
+        return new ResponseEntity<>(obj, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ObjetoErroDTO> handleTypeMismatchExceptions(MethodArgumentTypeMismatchException ex) {
+        ObjetoErroDTO obj = new ObjetoErroDTO();
+        obj.setError("Tipo de dado inválido: " + ex.getName() + " deve ser do tipo " + ex.getRequiredType().getSimpleName());
+        obj.setCode(HttpStatus.BAD_REQUEST.toString());
+
+        return new ResponseEntity<>(obj, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({DataIntegrityViolationException.class, ConstraintViolationException.class, SQLException.class})
-    protected ResponseEntity<Object> handleExceptionDataIntegrity(Exception ex) {
-
+    public ResponseEntity<ObjetoErroDTO> handleExceptionDataIntegrity(Exception ex) {
         ObjetoErroDTO obj = new ObjetoErroDTO();
+        String msg;
 
-        String msg = "";
-
-        if (ex instanceof SQLException) {
-            msg = ((SQLException) ex).getCause().getCause().getMessage();
-        } else if (ex instanceof ConstraintViolationException) {
-            msg = ((ConstraintViolationException) ex).getCause().getCause().getMessage();
-        } else if (ex instanceof DataIntegrityViolationException) {
-            msg = ((DataIntegrityViolationException) ex).getCause().getCause().getMessage();
+        if (ex.getCause() != null && ex.getCause().getCause() != null) {
+            msg = ex.getCause().getCause().getMessage();
         } else {
             msg = ex.getMessage();
         }
@@ -64,6 +65,16 @@ public class ControleExcecoes extends ResponseEntityExceptionHandler {
         obj.setError(msg);
         obj.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
 
-        return new ResponseEntity<Object>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ObjetoErroDTO> handleGenericExceptions(Exception ex) {
+        ObjetoErroDTO obj = new ObjetoErroDTO();
+        obj.setError("Erro inesperado: " + ex.getMessage());
+        obj.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+
+        return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+

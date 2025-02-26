@@ -18,10 +18,16 @@ public class JWTApiAuthFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        Authentication auth = new JWTTokenAuthService().getAuthentication((HttpServletRequest) request, (HttpServletResponse) response);
+        try {
+            Authentication auth = new JWTTokenAuthService().getAuthentication((HttpServletRequest) request, (HttpServletResponse) response);
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
+            SecurityContextHolder.getContext().setAuthentication(auth);
 
-        chain.doFilter(request, response);
+            chain.doFilter(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.getWriter().write("Falha ao logar" + e.getMessage());
+        }
+
     }
 }
